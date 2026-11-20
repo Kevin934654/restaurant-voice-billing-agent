@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Restaurant Voice Billing</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 40px auto; text-align: center; }
+    button { font-size: 20px; padding: 14px 28px; cursor: pointer; }
+    #said, #reply { margin-top: 24px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h1>Restaurant Voice Billing</h1>
+  <p>Click the button and say your order, like "two masala dosa and one filter coffee".</p>
+  <button onclick="startListening()">🎤 Speak your order</button>
+  <div id="said"></div>
+  <div id="reply"></div>
+
+  <script>
+    function startListening() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { alert("Please use Google Chrome."); return; }
+      const rec = new SR();
+      rec.lang = "en-IN";
+      document.getElementById("said").innerText = "Listening...";
+      rec.onresult = async (e) => {
+        const text = e.results[0][0].transcript;
+        document.getElementById("said").innerText = "You said: " + text;
+        const res = await fetch("/order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text })
+        });
+        const data = await res.json();
+        document.getElementById("reply").innerText = data.reply;
+        speechSynthesis.speak(new SpeechSynthesisUtterance(data.reply));
+      };
+      rec.onerror = () => { document.getElementById("said").innerText = "Could not hear. Try again."; };
+      rec.start();
+    }
+  </script>
+</body>
+</html>
