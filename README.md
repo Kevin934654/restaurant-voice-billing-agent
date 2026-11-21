@@ -16,3 +16,8 @@ Python, Flask, MySQL, browser speech recognition and text to speech
 2. pip install -r requirements.txt
 3. Create a .env file with DB_PASSWORD=your_mysql_password
 4. Run python app.py and open http://127.0.0.1:5000 in Chrome.
+## Languages
+Orders can be spoken in English, Hindi or Telugu. Pick the language in the dropdown on the main page. Dish names in each language are stored in the menu_aliases table, so new spellings can be added with one SQL line.
+
+## Kitchen display
+Open http://127.0.0.1:5000/kitchen to see open orders and mark them done.
