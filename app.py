@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 from parser import parse_order
 from billing import place_order
-
+from kitchen import kitchen_bp
 app = Flask(__name__)
-
+app.register_blueprint(kitchen_bp)
 @app.route("/")
 def home():
     return render_template("index.html")

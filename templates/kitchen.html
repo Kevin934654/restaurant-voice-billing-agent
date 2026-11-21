@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kitchen Display</title>
+  <style>
+    body { font-family: Arial; margin: 24px; background: #f4f4f4; }
+    h1 { text-align: center; }
+    #orders { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .card { background: white; border-radius: 8px; padding: 16px; width: 220px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .card h3 { margin: 0 0 8px; }
+    .card ul { padding-left: 20px; }
+    button { width: 100%; padding: 8px; font-size: 16px; cursor: pointer; }
+    #empty { text-align: center; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Kitchen Display</h1>
+  <div id="empty"></div>
+  <div id="orders"></div>
+  <script>
+    async function load() {
+      const res = await fetch("/kitchen/orders");
+      const orders = await res.json();
+      const box = document.getElementById("orders");
+      box.innerHTML = "";
+      document.getElementById("empty").innerText = orders.length ? "" : "No open orders";
+      orders.forEach(o => {
+        const card = document.createElement("div");
+        card.className = "card";
+        const items = o.items.map(i => "<li>" + i.quantity + " x " + i.name + "</li>").join("");
+        card.innerHTML = "<h3>Order " + o.order_id + "</h3><div>Table " + o.table_number + " at " + o.time + "</div><ul>" + items + "</ul>";
+        const btn = document.createElement("button");
+        btn.innerText = "Mark done";
+        btn.onclick = async () => {
+          await fetch("/kitchen/done/" + o.order_id, { method: "POST" });
+          load();
+        };
+        card.appendChild(btn);
+        box.appendChild(card);
+      });
+    }
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>
