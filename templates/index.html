@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>Restaurant Voice Billing</title>
   <style>
     body { font-family: Arial; max-width: 600px; margin: 40px auto; text-align: center; }
-    button { font-size: 20px; padding: 14px 28px; cursor: pointer; }
+    button, select { font-size: 20px; padding: 14px 28px; cursor: pointer; }
     #said, #reply { margin-top: 24px; font-size: 18px; }
   </style>
 </head>
 <body>
   <h1>Restaurant Voice Billing</h1>
-  <p>Click the button and say your order, like "two masala dosa and one filter coffee".</p>
+  <p>Pick a language, click the button and say your order.</p>
+  <select id="lang">
+    <option value="en-IN">English</option>
+    <option value="hi-IN">हिन्दी</option>
+    <option value="te-IN">తెలుగు</option>
+  </select>
   <button onclick="startListening()">🎤 Speak your order</button>
   <div id="said"></div>
   <div id="reply"></div>
@@ -19,8 +25,9 @@
     function startListening() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) { alert("Please use Google Chrome."); return; }
+      const langCode = document.getElementById("lang").value;
       const rec = new SR();
-      rec.lang = "en-IN";
+      rec.lang = langCode;
       document.getElementById("said").innerText = "Listening...";
       rec.onresult = async (e) => {
         const text = e.results[0][0].transcript;
@@ -28,11 +35,13 @@
         const res = await fetch("/order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: text })
+          body: JSON.stringify({ text: text, lang: langCode.slice(0, 2) })
         });
         const data = await res.json();
         document.getElementById("reply").innerText = data.reply;
-        speechSynthesis.speak(new SpeechSynthesisUtterance(data.reply));
+        const u = new SpeechSynthesisUtterance(data.reply);
+        u.lang = langCode;
+        speechSynthesis.speak(u);
       };
       rec.onerror = () => { document.getElementById("said").innerText = "Could not hear. Try again."; };
       rec.start();
