@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from parser import parse_order
 from billing import place_order
 from kitchen import kitchen_bp
+from db import get_connection
 
 app = Flask(__name__)
 app.register_blueprint(kitchen_bp)
@@ -21,9 +22,23 @@ TEXT = {
     },
 }
 
+def menu_by_category():
+    conn = get_connection()
+    cur = conn.cursor(dictionary=True)
+    cur.execute(
+        "SELECT name, price, category FROM menu_items "
+        "WHERE available = TRUE ORDER BY category, name"
+    )
+    rows = cur.fetchall()
+    conn.close()
+    groups = {}
+    for r in rows:
+        groups.setdefault(r["category"], []).append(r)
+    return groups
+
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", menu=menu_by_category())
 
 @app.route("/order", methods=["POST"])
 def order():

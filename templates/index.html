@@ -4,9 +4,16 @@
   <meta charset="utf-8">
   <title>Restaurant Voice Billing</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: 40px auto; text-align: center; }
+    body { font-family: Arial; max-width: 700px; margin: 40px auto; text-align: center; }
     button, select { font-size: 20px; padding: 14px 28px; cursor: pointer; }
     #said, #reply { margin-top: 24px; font-size: 18px; }
+    .menu { margin-top: 40px; text-align: left; }
+    .menu h2 { text-align: center; }
+    .cats { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+    .cat { background: #f4f4f4; border-radius: 8px; padding: 12px 16px; width: 280px; }
+    .cat h3 { margin: 0 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+    .row { display: flex; justify-content: space-between; padding: 3px 0; }
+    .note { text-align: center; color: #666; font-size: 14px; margin-top: 12px; }
   </style>
 </head>
 <body>
@@ -20,6 +27,21 @@
   <button onclick="startListening()">🎤 Speak your order</button>
   <div id="said"></div>
   <div id="reply"></div>
+
+  <div class="menu">
+    <h2>Menu</h2>
+    <div class="cats">
+      {% for category, items in menu.items() %}
+      <div class="cat">
+        <h3>{{ category }}</h3>
+        {% for item in items %}
+        <div class="row"><span>{{ item.name }}</span><span>₹{{ item.price|int }}</span></div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="note">Prices are before 5% GST.</div>
+  </div>
 
   <script>
     function startListening() {
