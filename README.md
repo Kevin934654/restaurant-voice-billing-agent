@@ -1,5 +1,7 @@
 # Restaurant Voice Billing Agent
 
+![Voice billing page](screenshot.png)
+
 A voice agent that takes a restaurant order by speech, saves it in MySQL, adds 5% GST and speaks the bill back.
 
 ## Tech stack
